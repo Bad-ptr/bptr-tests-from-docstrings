@@ -93,6 +93,7 @@ Example:
                    (string (find-package (string-upcase pkg)))
                    ((or symbol keyword) (find-package pkg))
                    (t nil))))
+    (format *standard-output* "~&~%======= Generatin tests for package:~a =======~%~%" package)
     (if package
         (case operate-on
           (package-exports
@@ -126,7 +127,8 @@ Example:
                                       :str-to-result str-to-result)))))
         (progn
           (format *error-output* "[Error]~TNo such package found: ~s~%" pkg)
-          nil))))
+          nil))
+    (format *standard-output* "~&~%======= Done generating tests for package:~a =======~%~%" package)))
 
 
 
@@ -163,12 +165,17 @@ Example:
 
   (let ((ret (loop :for typ :in sym-types
                 :when (documentation sym typ)
-                  :collect (cons typ (cons (documentation sym typ) nil))
+                :collect (cons typ (cons (documentation sym typ) nil))
                 :end)))
     (unless ret
-      (when (or (boundp sym) (fboundp sym))
-        (format *error-output* "[Info]~TSymbol have no docstrings:~T~a.~%"
-                (symbol-name sym))))
+      (let ((es (loop :for ss :being :the :external-symbol :of (symbol-package sym)
+                   :when (eq ss sym)
+                     :return t
+                   :end
+                   :finally (return nil))))
+        (when (or es (boundp sym) (fboundp sym))
+          (format *error-output* "[Info]~TSymbol have no docstrings:~T~a.~%"
+                  (symbol-name sym)))))
     ret))
 
 
@@ -328,6 +335,6 @@ Example:
   
   (let ((#+sbcl sb-rt::*entries* #-sbcl rtest::*entries*
                 testsdb))
-    (format ostream "~&~%======= Tests results =======~%~%")
+    (format ostream "~&~%======= Runing tests =======~%~%")
     (do-tests ostream)
     (format ostream "~&~%======= End of tests results =======~%")))
