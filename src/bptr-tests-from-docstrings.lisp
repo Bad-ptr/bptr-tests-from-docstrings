@@ -88,12 +88,12 @@ Example:
 
   "Try to make tests for symbols in package."
 
+  (format *standard-output* "~&~%======= Generating tests for package:~a =======~%~%" pkg)
   (let ((package (typecase pkg
                    (package pkg)
                    (string (find-package (string-upcase pkg)))
                    ((or symbol keyword) (find-package pkg))
                    (t nil))))
-    (format *standard-output* "~&~%======= Generatin tests for package:~a =======~%~%" package)
     (if package
         (case operate-on
           (package-exports
@@ -127,8 +127,8 @@ Example:
                                       :str-to-result str-to-result)))))
         (progn
           (format *error-output* "[Error]~TNo such package found: ~s~%" pkg)
-          nil))
-    (format *standard-output* "~&~%======= Done generating tests for package:~a =======~%~%" package)))
+          nil)))
+  (format *standard-output* "~&~%======= Done generating tests for package:~a =======~%~%" pkg))
 
 
 
